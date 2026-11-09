@@ -1,0 +1,2121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SILKYSINGZ GEOAI | GAMBIA WEATHER FIELD COMPARISON</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<style>
+:root{
+ --green:#14532d;
+ --dark:#071b2a;
+ --panel:#10283a;
+ --panel2:#163449;
+ --line:#28485c;
+ --text:#eaf3f8;
+ --muted:#a9bdca;
+ --blue:#38bdf8;
+ --orange:#fb923c;
+}
+*{box-sizing:border-box}
+html,body{
+ margin:0;width:100%;height:100%;
+ font-family:Arial,sans-serif;
+ background:#071b2a;color:var(--text)
+}
+body{overflow:hidden}
+button,input,select{font:inherit}
+button{cursor:pointer}
+#app{
+ height:100vh;display:flex;flex-direction:column;
+ position:relative;overflow:hidden
+}
+#flag-bg{
+ position:absolute;inset:0;z-index:0;pointer-events:none;
+ background:linear-gradient(to bottom,
+ rgba(206,17,38,.10) 0 30%,
+ rgba(255,255,255,.08) 30% 39%,
+ rgba(0,0,0,.12) 39% 45%,
+ rgba(0,110,63,.10) 45% 75%,
+ rgba(255,255,255,.05) 75% 82%,
+ rgba(0,0,0,.12) 82% 100%);
+}
+header{
+ z-index:2;min-height:68px;padding:10px 18px;
+ display:flex;align-items:center;justify-content:space-between;
+ background:rgba(5,24,37,.96);
+ border-bottom:1px solid var(--line);gap:12px
+}
+.brand{display:flex;align-items:center;gap:12px}
+.flag{
+ width:42px;height:28px;border:1px solid #ffffff55;
+ flex-shrink:0;
+ background:linear-gradient(to bottom,
+ #ce1126 0 30%,white 30% 39%,
+ #163b8c 39% 61%,white 61% 70%,#009e49 70%)
+}
+header h1{font-size:17px;margin:0 0 4px;font-weight:800}
+header p{font-size:11px;color:var(--muted);margin:0}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status{
+ padding:7px 10px;border:1px solid var(--line);
+ border-radius:6px;color:#c8d9e4;font-size:11px;
+ background:#10283a
+}
+#layout{
+ z-index:1;flex:1;min-height:0;display:grid;
+ grid-template-columns:minmax(260px,1fr) minmax(400px,1fr) minmax(260px,1fr);
+ gap:9px;padding:9px
+}
+.panel{
+ min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;
+ background:rgba(11,34,50,.96);
+ border:1px solid var(--line);border-radius:9px;padding:12px;
+ scrollbar-width:thin;scrollbar-color:#41647a #0a2233
+}
+.panel h2{font-size:14px;margin:0 0 12px;color:#fff}
+.section{
+ border:1px solid var(--line);border-radius:7px;
+ padding:10px;margin-bottom:10px;
+ background:rgba(20,49,69,.72)
+}
+.section h3{
+ margin:0 0 9px;font-size:12px;color:#bfe5f7;
+ text-transform:uppercase;letter-spacing:.6px
+}
+label{display:block;font-size:11px;color:#c4d5df;margin:8px 0 5px}
+input,select{
+ width:100%;padding:8px;background:#071b2a;color:white;
+ border:1px solid #36576d;border-radius:5px;outline:none
+}
+input[type="checkbox"]{width:auto;accent-color:#38bdf8}
+input[type="date"]{color-scheme:dark;cursor:pointer}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1;min-width:0}
+.checkrow{
+ display:flex;gap:7px;align-items:center;
+ font-size:11px;margin:8px 0;color:#d9e7ee
+}
+.btn{
+ border:0;border-radius:5px;padding:9px 12px;
+ font-size:11px;font-weight:700;background:#176b49;color:white
+}
+.btn:hover{filter:brightness(1.15)}
+.btn.secondary{background:#24475e}
+.btn.full{width:100%;margin-top:7px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.help{font-size:10px;color:#9fb5c4;line-height:1.5;margin-top:7px}
+#map-panel{display:flex;flex-direction:column;overflow:hidden;position:relative}
+.map-toolbar{
+ display:flex;justify-content:space-between;
+ align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap
+}
+.map-toolbar h2{margin:0}
+.map-tabs{display:flex;gap:5px}
+.map-tab{
+ padding:7px 10px;border:1px solid #36576d;
+ background:#10283a;color:#dceaf2;border-radius:5px;font-size:10px
+}
+.map-tab.active{background:#176b49;border-color:#23865e}
+#main-map{
+ flex:1;min-height:250px;border-radius:7px;
+ overflow:hidden;background:#102b3c
+}
+.map-footer{
+ padding:8px 2px 0;display:flex;justify-content:space-between;
+ gap:8px;flex-wrap:wrap;color:#9fb5c4;font-size:10px
+}
+#map-legend{
+ position:absolute;z-index:500;bottom:48px;left:20px;
+ background:#071b2aeb;padding:9px;
+ border:1px solid #41647a;border-radius:6px;
+ font-size:10px;max-width:180px
+}
+.legend-title{font-weight:bold;margin-bottom:6px}
+.legend-gradient{
+ height:9px;width:145px;border-radius:4px;
+ background:linear-gradient(90deg,#2563eb,#22c55e,#facc15,#f97316,#dc2626)
+}
+.legend-labels{
+ display:flex;justify-content:space-between;
+ margin-top:4px;color:#d3e0e8
+}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.kpi{
+ background:#102d40;border:1px solid var(--line);
+ padding:10px;border-radius:6px;min-width:0
+}
+.kpi .name{font-size:10px;color:#a9c0ce}
+.kpi .value{font-size:19px;font-weight:800;margin-top:5px;overflow-wrap:anywhere}
+.kpi .sub{font-size:9px;color:#92aebe;margin-top:3px}
+.diagnostic{
+ border:1px solid var(--line);background:#102b3e;
+ border-radius:7px;padding:9px;margin-bottom:9px
+}
+.diag-head{
+ display:flex;justify-content:space-between;
+ gap:5px;align-items:center;margin-bottom:7px
+}
+.diag-head strong{font-size:11px}
+.diag-values{font-size:10px;color:#c7d9e4;line-height:1.7}
+.diag-maps{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.mini-map{
+ height:110px;border-radius:5px;overflow:hidden;
+ background:#102438;border:1px solid #38566a
+}
+.mini-label{text-align:center;font-size:9px;color:#9eb5c5;margin-bottom:4px}
+.chart-box{height:210px;margin-top:7px}
+.chart-note{font-size:9px;color:#a9bdca;line-height:1.5;margin-top:7px}
+.small{font-size:10px;color:#a9bdca;line-height:1.5}
+#message{white-space:pre-wrap;font-size:10px;line-height:1.5;color:#c8d9e4;overflow-wrap:anywhere}
+footer{
+ z-index:2;padding:7px 14px;background:#061724;
+ border-top:1px solid var(--line);font-size:10px;color:#a9bdca;
+ display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap
+}
+.leaflet-container{font-family:Arial,sans-serif}
+.leaflet-control-attribution{font-size:8px!important}
+@media(max-width:900px){
+ body{overflow:auto}
+ #app{height:auto;min-height:100vh;overflow:visible}
+ #layout{grid-template-columns:1fr;display:flex;flex-direction:column}
+ .panel{min-height:360px;max-height:none}
+ #map-panel{height:540px}
+ #main-map{min-height:380px}
+ header{align-items:flex-start}
+ .header-right{justify-content:flex-end}
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+<div id="flag-bg"></div>
+
+<header>
+ <div class="brand">
+  <div class="flag"></div>
+  <div>
+   <h1>SILKYSINGZ GEOAI | GAMBIA WEATHER FIELD COMPARISON</h1>
+   <p>Historical Forecast vs ERA5 Reanalysis • Spatial Weather Intelligence</p>
+  </div>
+ </div>
+ <div class="header-right">
+  <span class="status" id="date-status">Select a date</span>
+  <span class="status" id="system-status">Initialising</span>
+ </div>
+</header>
+
+<div id="layout">
+
+<!-- LEFT PANEL -->
+<aside class="panel">
+<h2>01 | Controls</h2>
+
+<div class="section">
+<h3>Analysis period</h3>
+<label for="analysis-date">Select analysis date</label>
+<input type="date" id="analysis-date">
+<div class="help" id="date-help">Choose a historical date for the comparison.</div>
+
+<label for="hour-select">Hour (UTC)</label>
+<select id="hour-select"></select>
+
+<div class="row">
+ <button class="btn full" id="run-btn">RUN ANALYSIS</button>
+ <button class="btn secondary full" id="reset-btn">RESET</button>
+</div>
+</div>
+
+<div class="section">
+<h3>Weather variable</h3>
+<select id="variable-select">
+ <option value="relative_humidity_2m">Relative humidity (%)</option>
+ <option value="precipitation">Precipitation (mm)</option>
+ <option value="cloud_cover">Cloud cover (%)</option>
+ <option value="wind_speed_10m">Wind speed (km/h)</option>
+ <option value="dew_point_2m">Dew point (°C)</option>
+ <option value="temperature_2m">Temperature (°C)</option>
+ <option value="wind_direction_10m">Wind direction (°)</option>
+</select>
+
+<label for="map-mode">Main map display</label>
+<select id="map-mode">
+ <option value="forecast">Historical forecast</option>
+ <option value="era">ERA5 reanalysis</option>
+ <option value="difference">Forecast minus ERA5</option>
+</select>
+</div>
+
+<div class="section">
+<h3>Map configuration</h3>
+<label for="basemap-select">Basemap</label>
+<select id="basemap-select">
+ <option value="osm">OpenStreetMap</option>
+ <option value="satellite">Esri Satellite</option>
+ <option value="terrain">OpenTopoMap Terrain</option>
+ <option value="dark">Carto Dark</option>
+ <option value="none">No external tiles</option>
+</select>
+
+<label for="grid-rows">Sampling grid rows</label>
+<select id="grid-rows">
+ <option value="5">5 rows</option>
+ <option value="7">7 rows</option>
+ <option value="9" selected>9 rows</option>
+ <option value="11">11 rows</option>
+ <option value="13">13 rows</option>
+</select>
+
+<label for="grid-cols">Sampling grid columns</label>
+<select id="grid-cols">
+ <option value="15">15 columns</option>
+ <option value="20">20 columns</option>
+ <option value="25" selected>25 columns</option>
+ <option value="30">30 columns</option>
+</select>
+</div>
+
+<div class="section">
+<h3>Map overlays</h3>
+<label class="checkrow"><input type="checkbox" id="show-boundary" checked> Gambia national boundary</label>
+<label class="checkrow"><input type="checkbox" id="show-points" checked> Weather sample points</label>
+<label class="checkrow"><input type="checkbox" id="show-particles" checked> Animated wind particles</label>
+<label class="checkrow"><input type="checkbox" id="show-grid"> Sampling grid points</label>
+<div class="help">Wind particles use forecast wind speed and direction at sampled locations.</div>
+</div>
+
+<div class="section">
+<h3>Animation controls</h3>
+<label for="animation-speed">Hourly animation speed</label>
+<select id="animation-speed">
+ <option value="6000">Slow – 6 seconds/hour</option>
+ <option value="3600" selected>Normal – 3.6 seconds/hour</option>
+ <option value="1800">Fast – 1.8 seconds/hour</option>
+</select>
+<div class="row">
+ <button class="btn full" id="play-btn">PLAY MAP ANIMATION</button>
+ <button class="btn secondary full" id="stop-btn">STOP</button>
+</div>
+<div class="help">The weather hour advances while wind particles move across the map.</div>
+</div>
+
+<div class="section">
+<h3>Export</h3>
+<button class="btn full" id="export-csv">EXPORT SAMPLE CSV</button>
+<button class="btn secondary full" id="export-json">EXPORT WEATHER JSON</button>
+</div>
+
+<div class="section">
+<h3>Data sources</h3>
+<p class="small">
+<strong>Historical forecast:</strong> Open-Meteo Historical Forecast API.<br><br>
+<strong>ERA5:</strong> Open-Meteo Historical Weather API using the ERA5 model where available.<br><br>
+<strong>Boundary:</strong> GeoJSON country boundaries dataset.
+</p>
+</div>
+</aside>
+
+<!-- CENTRE PANEL -->
+<main class="panel" id="map-panel">
+ <div class="map-toolbar">
+  <h2>02 | Interactive Weather Map</h2>
+  <div class="map-tabs">
+   <button class="map-tab active" data-mode="forecast">Forecast</button>
+   <button class="map-tab" data-mode="era">ERA5</button>
+   <button class="map-tab" data-mode="difference">Difference</button>
+  </div>
+ </div>
+
+ <div id="main-map"></div>
+
+ <div id="map-legend">
+  <div class="legend-title" id="legend-title">Relative humidity (%)</div>
+  <div class="legend-gradient"></div>
+  <div class="legend-labels"><span>Low</span><span>High</span></div>
+  <div class="small" id="legend-range">Waiting for data</div>
+ </div>
+
+ <div class="map-footer">
+  <span id="map-info">Gambia • National sample grid</span>
+  <span id="hour-info">Hour: -- UTC</span>
+ </div>
+</main>
+
+<!-- RIGHT PANEL -->
+<aside class="panel">
+<h2>03 | Analytics and Diagnostics</h2>
+
+<div class="kpis">
+ <div class="kpi">
+  <div class="name">Forecast mean</div>
+  <div class="value" id="kpi-forecast">—</div>
+  <div class="sub" id="kpi-forecast-unit">Selected variable</div>
+ </div>
+ <div class="kpi">
+  <div class="name">ERA5 mean</div>
+  <div class="value" id="kpi-era">—</div>
+  <div class="sub" id="kpi-era-unit">Selected variable</div>
+ </div>
+ <div class="kpi">
+  <div class="name">Mean difference</div>
+  <div class="value" id="kpi-difference">—</div>
+  <div class="sub">Forecast − ERA5</div>
+ </div>
+ <div class="kpi">
+  <div class="name">Valid sample points</div>
+  <div class="value" id="kpi-count">0</div>
+  <div class="sub">National grid</div>
+ </div>
+</div>
+
+<div class="section">
+ <h3>Forecast and ERA5 sample maps</h3>
+ <div id="diagnostics"></div>
+</div>
+
+<div class="section">
+ <h3>Hourly comparison</h3>
+ <div class="chart-box"><canvas id="hourly-chart"></canvas></div>
+ <div class="chart-note" id="hourly-diagnostic">
+  Hourly data diagnostics will appear after analysis.
+ </div>
+</div>
+
+<div class="section">
+ <h3>Spatial sample distribution</h3>
+ <div class="chart-box"><canvas id="distribution-chart"></canvas></div>
+</div>
+
+<div class="section">
+ <h3>API and data diagnostics</h3>
+ <div id="api-status" class="small">Waiting for analysis.</div>
+ <div id="message">Select a date and run the analysis.</div>
+</div>
+
+<div class="section">
+ <h3>Methodology and limitations</h3>
+ <p class="small">
+ 1. The national boundary defines the analysis extent.<br><br>
+ 2. A regular latitude/longitude sampling grid is generated, excluding points outside the boundary.<br><br>
+ 3. Weather data are requested for each valid sampling point.<br><br>
+ 4. Forecast and ERA5 hourly means are calculated independently from valid observations.<br><br>
+ 5. Difference is calculated as Forecast minus ERA5.<br><br>
+ 6. These are gridded weather values, not direct ground-station observations.
+ </p>
+</div>
+
+<div class="section">
+ <h3>Credits</h3>
+ <p class="small">
+ Produced by Ansu Singhateh<br>
+ GIS Analyst | GIS-Cartography Unit<br>
+ Gambia Bureau of Statistics<br><br>
+ SILKYSINGZ GEOAI • Research and educational use
+ </p>
+</div>
+</aside>
+
+</div>
+
+<footer>
+ <span>Produced by Ansu Singhateh | GIS Analyst | GIS-Cartography Unit | Gambia Bureau of Statistics</span>
+ <span>SILKYSINGZ GEOAI • Research and educational use</span>
+</footer>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const BOUNDARY_URL =
+ "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson";
+
+const FORECAST_API =
+ "https://historical-forecast-api.open-meteo.com/v1/forecast";
+
+const ERA_API =
+ "https://archive-api.open-meteo.com/v1/archive";
+
+const VARIABLES = [
+ "relative_humidity_2m",
+ "precipitation",
+ "cloud_cover",
+ "wind_speed_10m",
+ "dew_point_2m",
+ "temperature_2m",
+ "wind_direction_10m"
+];
+
+const META = {
+ relative_humidity_2m:{
+  name:"Relative humidity",unit:"%",min:0,max:100,digits:1
+ },
+ precipitation:{
+  name:"Precipitation",unit:"mm",min:0,max:20,digits:2
+ },
+ cloud_cover:{
+  name:"Cloud cover",unit:"%",min:0,max:100,digits:1
+ },
+ wind_speed_10m:{
+  name:"Wind speed",unit:"km/h",min:0,max:40,digits:1
+ },
+ dew_point_2m:{
+  name:"Dew point",unit:"°C",min:10,max:35,digits:1
+ },
+ temperature_2m:{
+  name:"Temperature",unit:"°C",min:15,max:45,digits:1
+ },
+ wind_direction_10m:{
+  name:"Wind direction",unit:"°",min:0,max:360,digits:0
+ }
+};
+
+const $ = id => document.getElementById(id);
+
+let boundary = null;
+let boundaryLayer = null;
+let samples = [];
+
+let forecastData = null;
+let eraData = null;
+
+let currentHour = 12;
+let currentMode = "forecast";
+
+let basemapLayer = null;
+let sampleLayer = null;
+let gridLayer = null;
+
+let hourlyTimer = null;
+let animationFrame = null;
+let animationRunning = false;
+let lastFrameTime = 0;
+
+let windParticleLayer = null;
+let windParticles = [];
+
+let hourlyChart = null;
+let distributionChart = null;
+
+let loading = false;
+
+/* =========================================================
+   DATE SELECTOR
+========================================================= */
+
+function utcDateString(date){
+ return date.getUTCFullYear()+"-"+
+  String(date.getUTCMonth()+1).padStart(2,"0")+"-"+
+  String(date.getUTCDate()).padStart(2,"0");
+}
+
+function initialiseDatePicker(){
+ const input=$("analysis-date");
+ const todayString=utcDateString(new Date());
+
+ input.max=todayString;
+ input.min="1940-01-01";
+
+ if(!input.value||input.value>todayString){
+  input.value="2025-01-15";
+ }
+
+ validateSelectedDate();
+}
+
+function validateSelectedDate(){
+ const input=$("analysis-date");
+ const selectedDate=input.value;
+ const todayString=utcDateString(new Date());
+
+ if(!selectedDate){
+  $("date-status").textContent="No date selected";
+  $("date-help").textContent="Please select an analysis date.";
+  return false;
+ }
+
+ const parsed=new Date(selectedDate+"T00:00:00Z");
+
+ if(Number.isNaN(parsed.getTime())||
+    utcDateString(parsed)!==selectedDate){
+  $("date-status").textContent="Invalid date";
+  $("date-help").textContent="Please select a valid calendar date.";
+  return false;
+ }
+
+ if(selectedDate>todayString){
+  $("date-status").textContent="Future date";
+  $("date-help").textContent="Future dates cannot be used for this historical analysis.";
+  return false;
+ }
+
+ $("date-status").textContent=selectedDate;
+ $("date-help").textContent=
+  "Selected date: "+selectedDate+". Click RUN ANALYSIS to retrieve data.";
+
+ return true;
+}
+
+function clearPreviousResults(){
+ stopAnimation();
+ removeWindParticles();
+
+ forecastData=null;
+ eraData=null;
+
+ $("kpi-forecast").textContent="—";
+ $("kpi-era").textContent="—";
+ $("kpi-difference").textContent="—";
+ $("kpi-count").textContent="0";
+
+ $("api-status").textContent="Date changed. Run analysis again.";
+ $("hourly-diagnostic").textContent="Waiting for new hourly observations.";
+ $("message").textContent="Previous results cleared. Click RUN ANALYSIS.";
+
+ renderMainMap();
+}
+
+$("analysis-date").addEventListener("input",validateSelectedDate);
+
+$("analysis-date").addEventListener("change",()=>{
+ validateSelectedDate();
+ clearPreviousResults();
+});
+
+/* =========================================================
+   HOUR SELECTOR
+========================================================= */
+
+function populateHours(){
+ const select=$("hour-select");
+ select.innerHTML="";
+
+ for(let h=0;h<24;h++){
+  const option=document.createElement("option");
+  option.value=String(h);
+  option.textContent=String(h).padStart(2,"0")+":00 UTC";
+  select.appendChild(option);
+ }
+
+ select.value="12";
+ currentHour=12;
+}
+
+$("hour-select").addEventListener("change",()=>{
+ currentHour=Number($("hour-select").value);
+
+ if(forecastData||eraData){
+  updateAll();
+ }
+});
+
+/* =========================================================
+   MAP INITIALISATION
+========================================================= */
+
+const mainMap=L.map("main-map",{
+ center:[13.48,-15.45],
+ zoom:8,
+ zoomControl:true,
+ preferCanvas:true
+});
+
+const basemaps={
+ osm:L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {maxZoom:19,attribution:"© OpenStreetMap contributors"}
+ ),
+ satellite:L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {maxZoom:19,attribution:"Tiles © Esri"}
+ ),
+ terrain:L.tileLayer(
+  "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+  {maxZoom:17,attribution:"© OpenTopoMap"}
+ ),
+ dark:L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  {maxZoom:19,attribution:"© OpenStreetMap © CARTO"}
+ )
+};
+
+function setBasemap(name){
+ if(basemapLayer){
+  mainMap.removeLayer(basemapLayer);
+  basemapLayer=null;
+ }
+
+ if(name!=="none"&&basemaps[name]){
+  basemapLayer=basemaps[name];
+  basemapLayer.addTo(mainMap);
+ }
+}
+
+setBasemap("osm");
+
+$("basemap-select").addEventListener("change",e=>{
+ setBasemap(e.target.value);
+});
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function setStatus(value){
+ $("system-status").textContent=value;
+}
+
+function setMessage(value){
+ $("message").textContent=value;
+}
+
+function mean(values){
+ const valid=values.filter(v=>Number.isFinite(v));
+
+ return valid.length
+  ?valid.reduce((a,b)=>a+b,0)/valid.length
+  :null;
+}
+
+function format(value,unit=""){
+ if(value===null||value===undefined||!Number.isFinite(Number(value))){
+  return "—";
+ }
+
+ const variable=$("variable-select").value;
+ const digits=META[variable]?.digits??1;
+
+ return Number(value).toFixed(digits)+(unit?" "+unit:"");
+}
+
+function colorScale(value,min,max){
+ if(!Number.isFinite(value))return "#64748b";
+
+ const t=Math.max(0,Math.min(1,(value-min)/(max-min||1)));
+
+ const stops=[
+  {p:0,c:[37,99,235]},
+  {p:.25,c:[34,197,94]},
+  {p:.5,c:[250,204,21]},
+  {p:.75,c:[249,115,22]},
+  {p:1,c:[220,38,38]}
+ ];
+
+ let a=stops[0],b=stops[4];
+
+ for(let i=0;i<stops.length-1;i++){
+  if(t>=stops[i].p&&t<=stops[i+1].p){
+   a=stops[i];
+   b=stops[i+1];
+   break;
+  }
+ }
+
+ const f=(t-a.p)/(b.p-a.p||1);
+
+ return "rgb("+a.c.map((v,i)=>
+  Math.round(v+(b.c[i]-v)*f)
+ ).join(",")+")";
+}
+
+function getStyle(value,variable){
+ const meta=META[variable];
+ return colorScale(value,meta.min,meta.max);
+}
+
+function getValueAt(data,variable,index,hour){
+ const arr=data?.[variable]?.[index];
+
+ if(!arr||arr[hour]===undefined||arr[hour]===null)return null;
+
+ const value=Number(arr[hour]);
+
+ return Number.isFinite(value)?value:null;
+}
+
+/* =========================================================
+   NATIONAL BOUNDARY
+========================================================= */
+
+async function loadBoundary(){
+ setStatus("Loading boundary...");
+
+ const response=await fetch(BOUNDARY_URL);
+
+ if(!response.ok){
+  throw new Error("Boundary download failed: HTTP "+response.status);
+ }
+
+ const geo=await response.json();
+
+ const feature=geo.features.find(f=>{
+  const p=f.properties||{};
+
+  return p.ADMIN==="Gambia"||
+   p.name==="Gambia"||
+   p.NAME==="Gambia"||
+   p.ADMIN==="The Gambia";
+ });
+
+ if(!feature){
+  throw new Error("The Gambia feature was not found.");
+ }
+
+ boundary=feature;
+
+ drawBoundary();
+ buildSamples();
+
+ setStatus("Boundary ready");
+}
+
+function drawBoundary(){
+ if(boundaryLayer){
+  mainMap.removeLayer(boundaryLayer);
+ }
+
+ boundaryLayer=L.geoJSON(boundary,{
+  style:{
+   color:"#f8fafc",
+   weight:2,
+   opacity:.95,
+   fillColor:"#0f766e",
+   fillOpacity:.08
+  }
+ });
+
+ if($("show-boundary").checked){
+  boundaryLayer.addTo(mainMap);
+ }
+
+ mainMap.fitBounds(boundaryLayer.getBounds(),{padding:[15,15]});
+}
+
+/* =========================================================
+   POINT IN POLYGON
+========================================================= */
+
+function pointInRing(point,ring){
+ const x=point[0],y=point[1];
+ let inside=false;
+
+ for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+  const xi=ring[i][0],yi=ring[i][1];
+  const xj=ring[j][0],yj=ring[j][1];
+
+  const intersect=
+   ((yi>y)!==(yj>y))&&
+   (x<(xj-xi)*(y-yi)/(yj-yi+1e-15)+xi);
+
+  if(intersect)inside=!inside;
+ }
+
+ return inside;
+}
+
+function pointInPolygon(lon,lat,polygon){
+ if(!polygon||!polygon.length)return false;
+
+ if(!pointInRing([lon,lat],polygon[0]))return false;
+
+ for(let i=1;i<polygon.length;i++){
+  if(pointInRing([lon,lat],polygon[i]))return false;
+ }
+
+ return true;
+}
+
+function pointInGeometry(lon,lat,geometry){
+ if(!geometry)return false;
+
+ if(geometry.type==="Polygon"){
+  return pointInPolygon(lon,lat,geometry.coordinates);
+ }
+
+ if(geometry.type==="MultiPolygon"){
+  return geometry.coordinates.some(
+   p=>pointInPolygon(lon,lat,p)
+  );
+ }
+
+ return false;
+}
+
+/* =========================================================
+   SAMPLING GRID
+========================================================= */
+
+function buildSamples(){
+ if(!boundary)return;
+
+ const rows=Number($("grid-rows").value);
+ const cols=Number($("grid-cols").value);
+
+ const bounds=L.geoJSON(boundary).getBounds();
+
+ const south=bounds.getSouth();
+ const north=bounds.getNorth();
+ const west=bounds.getWest();
+ const east=bounds.getEast();
+
+ const points=[];
+
+ for(let r=0;r<rows;r++){
+  const lat=south+(north-south)*(r+.5)/rows;
+
+  for(let c=0;c<cols;c++){
+   const lon=west+(east-west)*(c+.5)/cols;
+
+   if(pointInGeometry(lon,lat,boundary.geometry)){
+    points.push({lat,lon,id:points.length+1});
+   }
+  }
+ }
+
+ samples=points;
+
+ $("map-info").textContent=
+  "Gambia • "+samples.length+" valid sample points";
+
+ renderMainMap();
+}
+
+/* =========================================================
+   MAIN MAP
+========================================================= */
+
+function selectedValue(index,variable,hour){
+ const f=getValueAt(forecastData,variable,index,hour);
+ const e=getValueAt(eraData,variable,index,hour);
+
+ if(currentMode==="forecast")return f;
+ if(currentMode==="era")return e;
+
+ if(f===null||e===null)return null;
+
+ return f-e;
+}
+
+function renderMainMap(){
+ if(sampleLayer){
+  mainMap.removeLayer(sampleLayer);
+  sampleLayer=null;
+ }
+
+ if(gridLayer){
+  mainMap.removeLayer(gridLayer);
+  gridLayer=null;
+ }
+
+ const variable=$("variable-select").value;
+ const meta=META[variable];
+ const markers=[];
+
+ samples.forEach((sample,index)=>{
+  const value=selectedValue(index,variable,currentHour);
+
+  if(value===null)return;
+
+  let min=meta.min;
+  let max=meta.max;
+
+  if(currentMode==="difference"){
+   min=-Math.max(1,meta.max*.25);
+   max=Math.max(1,meta.max*.25);
+  }
+
+  const marker=L.circleMarker(
+   [sample.lat,sample.lon],
+   {
+    radius:5,
+    color:"#071b2a",
+    weight:1,
+    fillColor:colorScale(value,min,max),
+    fillOpacity:.92
+   }
+  ).bindTooltip(
+   "<b>"+meta.name+"</b><br>"+
+   format(value,meta.unit)+
+   "<br>Lat: "+sample.lat.toFixed(4)+
+   "<br>Lon: "+sample.lon.toFixed(4)
+  );
+
+  markers.push(marker);
+ });
+
+ sampleLayer=L.layerGroup(markers);
+
+ if($("show-points").checked){
+  sampleLayer.addTo(mainMap);
+ }
+
+ gridLayer=L.layerGroup(samples.map(s=>
+  L.circleMarker([s.lat,s.lon],{
+   radius:2,
+   color:"#fff",
+   weight:.5,
+   fillColor:"#fff",
+   fillOpacity:.4
+  })
+ ));
+
+ if($("show-grid").checked){
+  gridLayer.addTo(mainMap);
+ }
+
+ $("legend-title").textContent=meta.name+" ("+meta.unit+")";
+
+ $("legend-range").textContent=
+  currentMode==="difference"
+   ?"Forecast − ERA5"
+   :"Range: "+meta.min+" to "+meta.max+" "+meta.unit;
+
+ $("hour-info").textContent=
+  "Hour: "+String(currentHour).padStart(2,"0")+":00 UTC";
+
+ updateTabs();
+}
+
+function updateTabs(){
+ document.querySelectorAll(".map-tab").forEach(btn=>{
+  btn.classList.toggle("active",btn.dataset.mode===currentMode);
+ });
+}
+
+/* =========================================================
+   WEATHER API
+========================================================= */
+
+function chunkArray(array,size){
+ const result=[];
+
+ for(let i=0;i<array.length;i+=size){
+  result.push(array.slice(i,i+size));
+ }
+
+ return result;
+}
+
+async function fetchWeatherBatch(baseUrl,points,date,modelName){
+ const params=new URLSearchParams({
+  latitude:points.map(p=>p.lat.toFixed(5)).join(","),
+  longitude:points.map(p=>p.lon.toFixed(5)).join(","),
+  start_date:date,
+  end_date:date,
+  hourly:VARIABLES.join(","),
+  timezone:"UTC",
+  wind_speed_unit:"kmh"
+ });
+
+ if(modelName==="era5"){
+  params.set("models","era5");
+ }
+
+ const response=await fetch(baseUrl+"?"+params.toString());
+ const raw=await response.text();
+
+ let json;
+
+ try{
+  json=JSON.parse(raw);
+ }catch(error){
+  throw new Error(
+   modelName.toUpperCase()+
+   " returned non-JSON data. HTTP "+
+   response.status+": "+raw.slice(0,300)
+  );
+ }
+
+ if(!response.ok){
+  throw new Error(
+   modelName.toUpperCase()+" API HTTP "+
+   response.status+": "+
+   (json.reason||json.message||raw.slice(0,300))
+  );
+ }
+
+ if(json.error){
+  throw new Error(
+   modelName.toUpperCase()+" API error: "+
+   (json.reason||json.message||"Unknown error")
+  );
+ }
+
+ const records=Array.isArray(json)?json:[json];
+
+ if(!records.length){
+  throw new Error(modelName.toUpperCase()+" returned an empty response.");
+ }
+
+ records.forEach((record,index)=>{
+  if(record.error){
+   throw new Error(
+    modelName.toUpperCase()+" point "+index+": "+
+    (record.reason||"API error")
+   );
+  }
+
+  if(!record.hourly){
+   throw new Error(
+    modelName.toUpperCase()+" returned no hourly data for point "+index
+   );
+  }
+
+  if(!record.hourly.time?.length){
+   throw new Error(
+    modelName.toUpperCase()+" returned no hourly timestamps for point "+index
+   );
+  }
+ });
+
+ return records;
+}
+
+async function fetchWeather(baseUrl,points,date,modelName){
+ const result={
+  time:[],
+  records:[]
+ };
+
+ VARIABLES.forEach(v=>result[v]=[]);
+
+ const chunks=chunkArray(points,30);
+ let completed=0;
+
+ for(const chunk of chunks){
+  const records=await fetchWeatherBatch(
+   baseUrl,chunk,date,modelName
+  );
+
+  records.forEach((record,index)=>{
+   const globalIndex=completed+index;
+
+   result.records[globalIndex]=record;
+
+   if(!result.time.length){
+    result.time=record.hourly.time;
+   }
+
+   VARIABLES.forEach(variable=>{
+    const values=record.hourly[variable];
+
+    result[variable][globalIndex]=
+     Array.isArray(values)?values:[];
+   });
+  });
+
+  completed+=chunk.length;
+
+  setStatus(modelName.toUpperCase()+" "+completed+"/"+points.length);
+ }
+
+ return result;
+}
+
+/* =========================================================
+   RUN ANALYSIS
+========================================================= */
+
+async function runAnalysis(){
+ if(loading)return;
+
+ const date=$("analysis-date").value;
+
+ if(!validateSelectedDate()){
+  setMessage("Please select a valid historical date.");
+  return;
+ }
+
+ if(!boundary){
+  setMessage("The Gambia boundary is not ready.");
+  return;
+ }
+
+ if(!samples.length){
+  setMessage("No valid national sampling locations were generated.");
+  return;
+ }
+
+ stopAnimation();
+ removeWindParticles();
+
+ loading=true;
+
+ $("run-btn").disabled=true;
+ $("run-btn").textContent="LOADING...";
+
+ setStatus("Preparing analysis...");
+
+ forecastData=null;
+ eraData=null;
+
+ renderMainMap();
+ updateKPIs();
+
+ $("api-status").textContent=
+  "Requesting forecast and ERA5 data for "+date+"...";
+
+ setMessage(
+  "Retrieving weather information.\n"+
+  "Selected date: "+date+"\n"+
+  "Sample locations: "+samples.length
+ );
+
+ try{
+  const results=await Promise.allSettled([
+   fetchWeather(FORECAST_API,samples,date,"forecast"),
+   fetchWeather(ERA_API,samples,date,"era5")
+  ]);
+
+  if(results[0].status==="fulfilled"){
+   forecastData=results[0].value;
+  }
+
+  if(results[1].status==="fulfilled"){
+   eraData=results[1].value;
+  }
+
+  const forecastMessage=forecastData
+   ?"Historical forecast: successfully received."
+   :"Historical forecast error: "+results[0].reason.message;
+
+  const eraMessage=eraData
+   ?"ERA5: successfully received."
+   :"ERA5 error: "+results[1].reason.message;
+
+  $("api-status").textContent=
+   forecastMessage+"\n"+eraMessage;
+
+  if(!forecastData&&!eraData){
+   throw new Error(
+    "Both weather sources failed.\n"+
+    forecastMessage+"\n"+eraMessage
+   );
+  }
+
+  if($("analysis-date").value!==date){
+   throw new Error(
+    "The selected date changed during analysis. Run again."
+   );
+  }
+
+  currentHour=Number($("hour-select").value);
+
+  updateAll();
+
+  setMessage(
+   "Analysis completed.\n"+
+   "Date: "+date+"\n"+
+   "Sample locations: "+samples.length+"\n"+
+   "Forecast records: "+(forecastData?.records?.length||0)+"\n"+
+   "ERA5 records: "+(eraData?.records?.length||0)
+  );
+
+  setStatus(
+   forecastData&&eraData?"Analysis complete":"Partial data"
+  );
+
+ }catch(error){
+  console.error(error);
+
+  setStatus("Analysis failed");
+  setMessage(error.message);
+  $("api-status").textContent=error.message;
+
+ }finally{
+  loading=false;
+  $("run-btn").disabled=false;
+  $("run-btn").textContent="RUN ANALYSIS";
+ }
+}
+
+/* =========================================================
+   NATIONAL SAMPLE VALUES
+========================================================= */
+
+function valuesFor(data,variable,hour){
+ if(!data)return [];
+
+ return samples.map((_,i)=>
+  getValueAt(data,variable,i,hour)
+ ).filter(v=>v!==null);
+}
+
+/* =========================================================
+   KPI ANALYTICS
+========================================================= */
+
+function updateKPIs(){
+ const variable=$("variable-select").value;
+ const unit=META[variable].unit;
+
+ const fMean=mean(valuesFor(forecastData,variable,currentHour));
+ const eMean=mean(valuesFor(eraData,variable,currentHour));
+
+ const difference=
+  fMean!==null&&eMean!==null?fMean-eMean:null;
+
+ $("kpi-forecast").textContent=
+  fMean===null?"—":format(fMean);
+
+ $("kpi-era").textContent=
+  eMean===null?"—":format(eMean);
+
+ $("kpi-difference").textContent=
+  difference===null?"—":format(difference);
+
+ $("kpi-count").textContent=Math.max(
+  valuesFor(forecastData,variable,currentHour).length,
+  valuesFor(eraData,variable,currentHour).length
+ );
+
+ $("kpi-forecast-unit").textContent=unit;
+ $("kpi-era-unit").textContent=unit;
+}
+
+/* =========================================================
+   DIAGNOSTIC MAPS
+========================================================= */
+
+let miniMaps=[];
+
+function destroyMiniMaps(){
+ miniMaps.forEach(map=>{
+  try{map.remove()}catch(error){}
+ });
+
+ miniMaps=[];
+}
+
+function createMiniMap(id,values,variable){
+ if(!$(id))return;
+
+ const mini=L.map(id,{
+  center:[13.48,-15.45],
+  zoom:7,
+  zoomControl:false,
+  attributionControl:false,
+  dragging:false,
+  scrollWheelZoom:false,
+  doubleClickZoom:false,
+  boxZoom:false,
+  keyboard:false,
+  touchZoom:false,
+  preferCanvas:true
+ });
+
+ miniMaps.push(mini);
+
+ mini.getContainer().style.background="#102438";
+
+ if(boundary){
+  const outline=L.geoJSON(boundary,{
+   style:{
+    color:"#e5f3ff",
+    weight:1.3,
+    opacity:.9,
+    fillColor:"#183d52",
+    fillOpacity:.35
+   }
+  }).addTo(mini);
+
+  mini.fitBounds(outline.getBounds(),{padding:[5,5]});
+ }
+
+ values.forEach((value,index)=>{
+  if(value===null||!Number.isFinite(value))return;
+
+  const sample=samples[index];
+  if(!sample)return;
+
+  L.circleMarker([sample.lat,sample.lon],{
+   radius:4,
+   color:"#071525",
+   weight:.6,
+   fillColor:getStyle(value,variable),
+   fillOpacity:.95
+  }).bindTooltip(
+   META[variable].name+": "+format(value,META[variable].unit)
+  ).addTo(mini);
+ });
+
+ setTimeout(()=>mini.invalidateSize(),100);
+}
+
+function updateDiagnostics(){
+ destroyMiniMaps();
+
+ const variable=$("variable-select").value;
+ const meta=META[variable];
+
+ const fValues=samples.map((_,i)=>
+  getValueAt(forecastData,variable,i,currentHour)
+ );
+
+ const eValues=samples.map((_,i)=>
+  getValueAt(eraData,variable,i,currentHour)
+ );
+
+ const fMean=mean(fValues);
+ const eMean=mean(eValues);
+
+ const diff=fMean!==null&&eMean!==null?fMean-eMean:null;
+
+ $("diagnostics").innerHTML=`
+ <div class="diagnostic">
+  <div class="diag-head">
+   <strong>${meta.name}</strong>
+   <span class="badge">${meta.unit}</span>
+  </div>
+  <div class="diag-values">
+   Forecast: <b>${fMean===null?"—":format(fMean,meta.unit)}</b><br>
+   ERA5: <b>${eMean===null?"—":format(eMean,meta.unit)}</b><br>
+   Difference: <b>${diff===null?"—":format(diff,meta.unit)}</b>
+  </div>
+  <div class="diag-maps">
+   <div>
+    <div class="mini-label">FORECAST</div>
+    <div class="mini-map" id="mini-forecast"></div>
+   </div>
+   <div>
+    <div class="mini-label">ERA5</div>
+    <div class="mini-map" id="mini-era"></div>
+   </div>
+  </div>
+ </div>`;
+
+ requestAnimationFrame(()=>{
+  createMiniMap("mini-forecast",fValues,variable);
+  createMiniMap("mini-era",eValues,variable);
+ });
+}
+
+/* =========================================================
+   FIXED HOURLY COMPARISON CHART
+   - Uses each record's actual UTC timestamps.
+   - Does not turn missing values into zero.
+   - Calculates separate national means for each hour.
+========================================================= */
+
+function getHourlySeries(data,variable,date){
+ const means=Array(24).fill(null);
+ const counts=Array(24).fill(0);
+ const sums=Array(24).fill(0);
+
+ if(!data||!Array.isArray(data.records)){
+  return {means,counts,sums};
+ }
+
+ data.records.forEach(record=>{
+  const times=record.hourly?.time;
+  const values=record.hourly?.[variable];
+
+  if(!Array.isArray(times)||!Array.isArray(values))return;
+
+  times.forEach((timestamp,index)=>{
+   if(typeof timestamp!=="string")return;
+
+   // Match the selected date and the actual UTC hour.
+   const match=timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):\d{2}/);
+
+   if(!match||match[1]!==date)return;
+
+   const hour=Number(match[2]);
+
+   if(!Number.isInteger(hour)||hour<0||hour>23)return;
+
+   const rawValue=values[index];
+
+   // null, undefined, empty strings and non-numeric values
+   // are missing observations, not zero measurements.
+   if(rawValue===null||rawValue===undefined||rawValue==="")return;
+
+   const value=Number(rawValue);
+
+   if(!Number.isFinite(value))return;
+
+   sums[hour]+=value;
+   counts[hour]++;
+  });
+ });
+
+ for(let h=0;h<24;h++){
+  means[h]=counts[h]>0?sums[h]/counts[h]:null;
+ }
+
+ return {means,counts,sums};
+}
+
+function updateHourlyChart(){
+ const variable=$("variable-select").value;
+ const date=$("analysis-date").value;
+
+ const forecastHourly=getHourlySeries(
+  forecastData,variable,date
+ );
+
+ const eraHourly=getHourlySeries(
+  eraData,variable,date
+ );
+
+ const labels=Array.from({length:24},(_,h)=>
+  String(h).padStart(2,"0")+":00"
+ );
+
+ if(hourlyChart){
+  hourlyChart.destroy();
+ }
+
+ hourlyChart=new Chart($("hourly-chart"),{
+  type:"line",
+  data:{
+   labels:labels,
+   datasets:[
+    {
+     label:"Historical Forecast",
+     data:forecastHourly.means,
+     borderColor:"#38bdf8",
+     backgroundColor:"#38bdf822",
+     borderWidth:2,
+     pointRadius:3,
+     pointHoverRadius:5,
+     tension:.25,
+     spanGaps:false,
+     yAxisID:"y"
+    },
+    {
+     label:"ERA5 Reanalysis",
+     data:eraHourly.means,
+     borderColor:"#fb923c",
+     backgroundColor:"#fb923c22",
+     borderWidth:2,
+     pointRadius:3,
+     pointHoverRadius:5,
+     tension:.25,
+     spanGaps:false,
+     yAxisID:"y"
+    }
+   ]
+  },
+  options:{
+   responsive:true,
+   maintainAspectRatio:false,
+   interaction:{
+    mode:"index",
+    intersect:false
+   },
+   plugins:{
+    legend:{
+     labels:{
+      color:"#dceaf2",
+      font:{size:10}
+     }
+    },
+    tooltip:{
+     callbacks:{
+      label:function(context){
+       const value=context.parsed.y;
+       const datasetIndex=context.datasetIndex;
+       const hour=context.dataIndex;
+
+       const count=datasetIndex===0
+        ?forecastHourly.counts[hour]
+        :eraHourly.counts[hour];
+
+       return context.dataset.label+": "+
+        (value===null?"No data":value.toFixed(2))+
+        " | Samples: "+count;
+      }
+     }
+    }
+   },
+   scales:{
+    x:{
+     title:{
+      display:true,
+      text:"Hour (UTC)",
+      color:"#a9bdca"
+     },
+     ticks:{
+      color:"#a9bdca",
+      maxTicksLimit:12,
+      font:{size:8}
+     },
+     grid:{color:"#28485c"}
+    },
+    y:{
+     title:{
+      display:true,
+      text:META[variable].name+" ("+META[variable].unit+")",
+      color:"#a9bdca"
+     },
+     ticks:{
+      color:"#a9bdca",
+      font:{size:8}
+     },
+     grid:{color:"#28485c"}
+    }
+   }
+  }
+ });
+
+ const forecastValid=forecastHourly.counts.reduce((a,b)=>a+b,0);
+ const eraValid=eraHourly.counts.reduce((a,b)=>a+b,0);
+
+ const forecastHours=forecastHourly.counts.filter(n=>n>0).length;
+ const eraHours=eraHourly.counts.filter(n=>n>0).length;
+
+ $("hourly-diagnostic").textContent=
+  "Forecast: "+forecastValid+" valid hourly sample observations across "+
+  forecastHours+" hours. ERA5: "+eraValid+
+  " valid hourly sample observations across "+eraHours+
+  " hours. Missing hours are shown as gaps, not zero.";
+}
+
+/* =========================================================
+   DISTRIBUTION CHART
+========================================================= */
+
+function updateDistributionChart(){
+ const variable=$("variable-select").value;
+
+ const fValues=valuesFor(forecastData,variable,currentHour);
+ const eValues=valuesFor(eraData,variable,currentHour);
+
+ const bins=5;
+ const min=META[variable].min;
+ const max=META[variable].max;
+
+ const labels=[];
+ const fCounts=Array(bins).fill(0);
+ const eCounts=Array(bins).fill(0);
+
+ for(let i=0;i<bins;i++){
+  labels.push(
+   (min+(max-min)*i/bins).toFixed(0)+"–"+
+   (min+(max-min)*(i+1)/bins).toFixed(0)
+  );
+ }
+
+ function addToBins(values,counts){
+  values.forEach(v=>{
+   if(!Number.isFinite(v))return;
+
+   const idx=Math.max(
+    0,
+    Math.min(
+     bins-1,
+     Math.floor((v-min)/(max-min||1)*bins)
+    )
+   );
+
+   counts[idx]++;
+  });
+ }
+
+ addToBins(fValues,fCounts);
+ addToBins(eValues,eCounts);
+
+ if(distributionChart)distributionChart.destroy();
+
+ distributionChart=new Chart($("distribution-chart"),{
+  type:"bar",
+  data:{
+   labels:labels,
+   datasets:[
+    {label:"Forecast",data:fCounts,backgroundColor:"#38bdf8"},
+    {label:"ERA5",data:eCounts,backgroundColor:"#fb923c"}
+   ]
+  },
+  options:{
+   maintainAspectRatio:false,
+   responsive:true,
+   plugins:{
+    legend:{labels:{color:"#dceaf2",font:{size:9}}}
+   },
+   scales:{
+    x:{
+     ticks:{color:"#a9bdca",font:{size:8}},
+     grid:{color:"#28485c"}
+    },
+    y:{
+     beginAtZero:true,
+     ticks:{color:"#a9bdca",font:{size:8}},
+     grid:{color:"#28485c"}
+    }
+   }
+  }
+ });
+}
+
+/* =========================================================
+   UPDATE ALL ANALYTICS
+========================================================= */
+
+function updateAll(){
+ renderMainMap();
+ updateKPIs();
+ updateDiagnostics();
+ updateHourlyChart();
+ updateDistributionChart();
+}
+
+/* =========================================================
+   WIND PARTICLE ANIMATION
+========================================================= */
+
+function removeWindParticles(){
+ if(windParticleLayer){
+  mainMap.removeLayer(windParticleLayer);
+  windParticleLayer=null;
+ }
+
+ windParticles=[];
+}
+
+function createWindParticles(){
+ removeWindParticles();
+
+ if(!samples.length||!forecastData)return;
+
+ windParticleLayer=L.layerGroup().addTo(mainMap);
+
+ const count=Math.min(90,samples.length);
+
+ for(let i=0;i<count;i++){
+  const sampleIndex=Math.floor(i*samples.length/count);
+  const sample=samples[sampleIndex];
+
+  const marker=L.circleMarker(
+   [sample.lat,sample.lon],
+   {
+    radius:3.5,
+    color:"#ffffff",
+    weight:1,
+    fillColor:"#38bdf8",
+    fillOpacity:1,
+    opacity:1
+   }
+  ).addTo(windParticleLayer);
+
+  windParticles.push({
+   marker,
+   sampleIndex,
+   lat:sample.lat,
+   lon:sample.lon,
+   originLat:sample.lat,
+   originLon:sample.lon
+  });
+ }
+}
+
+function resetParticle(p){
+ p.lat=p.originLat;
+ p.lon=p.originLon;
+ p.marker.setLatLng([p.lat,p.lon]);
+}
+
+function animateWindParticles(timestamp){
+ if(!animationRunning)return;
+
+ if(!lastFrameTime)lastFrameTime=timestamp;
+
+ const elapsed=Math.min(
+  (timestamp-lastFrameTime)/1000,.08
+ );
+
+ lastFrameTime=timestamp;
+
+ windParticles.forEach(p=>{
+  const speed=getValueAt(
+   forecastData,"wind_speed_10m",p.sampleIndex,currentHour
+  );
+
+  const direction=getValueAt(
+   forecastData,"wind_direction_10m",p.sampleIndex,currentHour
+  );
+
+  if(speed===null||direction===null||speed<=0){
+   p.marker.setStyle({opacity:.15,fillOpacity:.15});
+   return;
+  }
+
+  p.marker.setStyle({
+   opacity:1,
+   fillOpacity:.95,
+   fillColor:colorScale(speed,0,40),
+   radius:2.5+Math.min(speed/12,3.5)
+  });
+
+  // Meteorological direction indicates where wind comes FROM.
+  const radians=((direction+180)%360)*Math.PI/180;
+
+  // Visual movement only, not a physical trajectory calculation.
+  const distanceKm=(speed/3600)*elapsed*20;
+
+  const latStep=distanceKm/111.32;
+  const lonStep=distanceKm/
+   (111.32*Math.cos(p.lat*Math.PI/180));
+
+  p.lat+=Math.cos(radians)*latStep;
+  p.lon+=Math.sin(radians)*lonStep;
+
+  if(!pointInGeometry(p.lon,p.lat,boundary.geometry)){
+   resetParticle(p);
+  }else{
+   p.marker.setLatLng([p.lat,p.lon]);
+  }
+ });
+
+ animationFrame=requestAnimationFrame(animateWindParticles);
+}
+
+function startWindParticleAnimation(){
+ if(!$("show-particles").checked)return;
+
+ if(!forecastData){
+  setMessage("Wind animation requires forecast wind speed and direction data.");
+  return;
+ }
+
+ if(!windParticles.length){
+  createWindParticles();
+ }
+
+ if(!windParticles.length)return;
+
+ animationRunning=true;
+ lastFrameTime=0;
+
+ if(animationFrame){
+  cancelAnimationFrame(animationFrame);
+ }
+
+ animationFrame=requestAnimationFrame(animateWindParticles);
+}
+
+function stopWindParticleAnimation(){
+ animationRunning=false;
+
+ if(animationFrame){
+  cancelAnimationFrame(animationFrame);
+  animationFrame=null;
+ }
+
+ lastFrameTime=0;
+}
+
+/* =========================================================
+   HOURLY MAP ANIMATION
+========================================================= */
+
+function stopAnimation(){
+ if(hourlyTimer){
+  clearInterval(hourlyTimer);
+  hourlyTimer=null;
+ }
+
+ stopWindParticleAnimation();
+
+ $("play-btn").textContent="PLAY MAP ANIMATION";
+}
+
+function playAnimation(){
+ if(!forecastData&&!eraData){
+  setMessage("Run the analysis before starting the animation.");
+  return;
+ }
+
+ stopAnimation();
+
+ if($("show-particles").checked&&forecastData){
+  createWindParticles();
+  startWindParticleAnimation();
+ }
+
+ $("play-btn").textContent="ANIMATION PLAYING";
+
+ hourlyTimer=setInterval(()=>{
+  currentHour=(currentHour+1)%24;
+  $("hour-select").value=String(currentHour);
+
+  renderMainMap();
+  updateKPIs();
+  updateDiagnostics();
+  updateHourlyChart();
+  updateDistributionChart();
+
+  if(animationRunning){
+   windParticles.forEach(p=>resetParticle(p));
+  }
+
+ },Number($("animation-speed").value));
+}
+
+/* =========================================================
+   EXPORT FUNCTIONS
+========================================================= */
+
+function downloadFile(filename,content,type){
+ const blob=new Blob([content],{type});
+ const url=URL.createObjectURL(blob);
+
+ const a=document.createElement("a");
+ a.href=url;
+ a.download=filename;
+
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+
+ URL.revokeObjectURL(url);
+}
+
+function exportCSV(){
+ if(!forecastData&&!eraData){
+  setMessage("Run the analysis before exporting.");
+  return;
+ }
+
+ const variable=$("variable-select").value;
+
+ const rows=[[
+  "sample_id",
+  "latitude",
+  "longitude",
+  "date",
+  "hour_utc",
+  "forecast_"+variable,
+  "era5_"+variable,
+  "difference_forecast_minus_era5"
+ ].join(",")];
+
+ samples.forEach((s,i)=>{
+  const f=getValueAt(forecastData,variable,i,currentHour);
+  const e=getValueAt(eraData,variable,i,currentHour);
+  const d=f!==null&&e!==null?f-e:null;
+
+  rows.push([
+   s.id,s.lat,s.lon,
+   $("analysis-date").value,
+   currentHour,
+   f??"",
+   e??"",
+   d??""
+  ].join(","));
+ });
+
+ downloadFile(
+  "Gambia_Weather_Comparison_"+
+  $("analysis-date").value+".csv",
+  rows.join("\n"),
+  "text/csv"
+ );
+}
+
+function exportJSON(){
+ if(!forecastData&&!eraData){
+  setMessage("Run the analysis before exporting.");
+  return;
+ }
+
+ const variable=$("variable-select").value;
+
+ const output={
+  title:"SILKYSINGZ GEOAI GAMBIA WEATHER FIELD COMPARISON",
+  date:$("analysis-date").value,
+  hour_utc:currentHour,
+  variable,
+  sources:{
+   forecast:FORECAST_API,
+   era5:ERA_API,
+   boundary:BOUNDARY_URL
+  },
+  samples:samples.map((s,i)=>({
+   id:s.id,
+   latitude:s.lat,
+   longitude:s.lon,
+   forecast:Object.fromEntries(
+    VARIABLES.map(v=>[
+     v,getValueAt(forecastData,v,i,currentHour)
+    ])
+   ),
+   era5:Object.fromEntries(
+    VARIABLES.map(v=>[
+     v,getValueAt(eraData,v,i,currentHour)
+    ])
+   )
+  }))
+ };
+
+ downloadFile(
+  "Gambia_Weather_Comparison_"+
+  $("analysis-date").value+".json",
+  JSON.stringify(output,null,2),
+  "application/json"
+ );
+}
+
+/* =========================================================
+   EVENT HANDLERS
+========================================================= */
+
+$("run-btn").addEventListener("click",runAnalysis);
+
+$("reset-btn").addEventListener("click",()=>{
+ stopAnimation();
+ removeWindParticles();
+
+ forecastData=null;
+ eraData=null;
+
+ currentHour=12;
+ currentMode="forecast";
+
+ $("hour-select").value="12";
+ $("variable-select").value="relative_humidity_2m";
+ $("map-mode").value="forecast";
+
+ $("grid-rows").value="9";
+ $("grid-cols").value="25";
+
+ $("show-boundary").checked=true;
+ $("show-points").checked=true;
+ $("show-particles").checked=true;
+ $("show-grid").checked=false;
+
+ $("animation-speed").value="3600";
+
+ validateSelectedDate();
+ buildSamples();
+ updateAll();
+
+ setStatus("Reset");
+ setMessage("Settings reset. Select a date and run analysis.");
+ $("api-status").textContent="Waiting for analysis.";
+ $("hourly-diagnostic").textContent="Waiting for hourly observations.";
+});
+
+$("variable-select").addEventListener("change",()=>{
+ if(forecastData||eraData){
+  updateAll();
+ }else{
+  renderMainMap();
+ }
+});
+
+$("map-mode").addEventListener("change",()=>{
+ currentMode=$("map-mode").value;
+ renderMainMap();
+});
+
+document.querySelectorAll(".map-tab").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  currentMode=btn.dataset.mode;
+  $("map-mode").value=currentMode;
+  renderMainMap();
+ });
+});
+
+$("show-boundary").addEventListener("change",()=>{
+ if(!$("show-boundary").checked){
+  if(boundaryLayer)mainMap.removeLayer(boundaryLayer);
+ }else if(boundaryLayer){
+  boundaryLayer.addTo(mainMap);
+ }
+});
+
+$("show-points").addEventListener("change",renderMainMap);
+$("show-grid").addEventListener("change",renderMainMap);
+
+$("show-particles").addEventListener("change",()=>{
+ if(!$("show-particles").checked){
+  stopWindParticleAnimation();
+  removeWindParticles();
+ }else if(forecastData&&hourlyTimer){
+  createWindParticles();
+  startWindParticleAnimation();
+ }
+});
+
+function changeGrid(){
+ stopAnimation();
+ removeWindParticles();
+
+ buildSamples();
+
+ if(forecastData||eraData){
+  forecastData=null;
+  eraData=null;
+
+  updateKPIs();
+  updateDiagnostics();
+  updateHourlyChart();
+  updateDistributionChart();
+  renderMainMap();
+
+  setMessage(
+   "Sampling grid changed. Run analysis again to retrieve data for the new points."
+  );
+
+  $("api-status").textContent="Sampling grid changed.";
+ }
+}
+
+$("grid-rows").addEventListener("change",changeGrid);
+$("grid-cols").addEventListener("change",changeGrid);
+
+$("play-btn").addEventListener("click",playAnimation);
+
+$("stop-btn").addEventListener("click",()=>{
+ stopAnimation();
+ removeWindParticles();
+});
+
+$("export-csv").addEventListener("click",exportCSV);
+$("export-json").addEventListener("click",exportJSON);
+
+/* =========================================================
+   INITIALISE
+========================================================= */
+
+async function initialise(){
+ populateHours();
+ initialiseDatePicker();
+
+ try{
+  setStatus("Initialising...");
+
+  await loadBoundary();
+
+  setStatus("Ready");
+
+  setMessage(
+   "National boundary loaded successfully.\n"+
+   "Sample locations: "+samples.length+"\n"+
+   "Choose an analysis date and click RUN ANALYSIS."
+  );
+
+ }catch(error){
+  console.error(error);
+
+  setStatus("Initialisation failed");
+  setMessage(error.message);
+  $("api-status").textContent=error.message;
+ }
+}
+
+initialise();
+
+</script>
+</body>
+</html>
